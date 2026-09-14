@@ -13,8 +13,10 @@ app = typer.Typer()
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+conversation = client.conversations.create()
 
 custom_theme = Theme({
+    "prompt": "bold cyan",
     "input": "bold magenta",
     "output": "bold red",
     "info": "bold yellow"
@@ -24,10 +26,13 @@ console = Console(theme=custom_theme)
 
 @app.command()
 def main():
+    console.print(
+        f"[info]Started conversation session: {conversation.id}[/info]\n")
+
     while True:
-        console.print(
-            ":backhand_index_pointing_right: ", end="")
-        user_input = input()
+
+        user_input = console.input(
+            "[prompt]You ❯ [/prompt]")
 
         if user_input.strip().lower() == "/exit":
             console.print("[info]Goodbye![/info]")
@@ -39,7 +44,8 @@ def main():
 
         response = client.responses.create(
             model="gpt-6-astra",
-            input=user_input,
+            input=[{"role": "user", "content": user_input}],
+            conversation=conversation.id
         )
         chat_output = response.output_text
 
