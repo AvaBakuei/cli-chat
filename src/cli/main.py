@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.theme import Theme
 from rich.panel import Panel
 from rich.table import Table
-from database import init_db, save_conversations, get_all_conversations
+from database import init_db, save_conversations, get_all_conversations, delete_all_conversations
 
 load_dotenv()
 
@@ -72,6 +72,11 @@ def main():
 
             console.print(table)
 
+            continue
+
+        # ---- Delete all of conversations:
+        if user_input.strip().lower() == "/delete":
+            delete_all_conversations()
             continue
 
         save_conversations(conversation.id, "user", user_input)

@@ -39,3 +39,12 @@ def get_all_conversations():
         cursor = conn.cursor()
         cursor.execute(sql_query)
         return cursor.fetchall()
+
+
+def delete_all_conversations():
+    with sqlite3.connect(str(DB_PATH)) as conn:
+        sql_query = """ DELETE FROM conversations"""
+        cursor = conn.cursor()
+        cursor.execute(sql_query)
+        conn.isolation_level = None
+        conn.execute("VACUUM")
