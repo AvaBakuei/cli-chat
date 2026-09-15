@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.theme import Theme
 from rich.panel import Panel
 from rich.table import Table
-from database import init_db, save_conversations, get_all_conversations, delete_all_conversations, show_conversation
+from database import init_db, save_conversations, get_all_conversations, delete_all_conversations, show_conversation, get_latest_conversations
 
 load_dotenv()
 
@@ -58,8 +58,8 @@ def main():
 
         # ---- Show a list of conversations:
         if user_input.strip().lower() == "/resume":
-            past_chats = get_all_conversations()
-            if past_chats:
+            all_chats = get_all_conversations()
+            if all_chats:
                 table = Table(
                     title="[title]List of Conversations[/title]", title_justify="left")
                 table.add_column(
@@ -67,7 +67,28 @@ def main():
                 table.add_column(
                     "[column]Conversation ID[/column]", justify="left")
 
-                for i, row in enumerate(past_chats):
+                for i, row in enumerate(all_chats):
+                    chat_id = row[0]
+                    table.add_row(f"[cyan]{i+1}[/cyan]",
+                                  f"[row]{chat_id}[/row]")
+
+                console.print(table)
+            else:
+                console.print(
+                    "[info]💬 This conversation is empty. Type a message to get started![/info]")
+            continue
+        # ---- Show a 10 latest conversations:
+        if user_input.strip().lower() == "/latest":
+            latest_chat = get_latest_conversations(10)
+            if latest_chat:
+                table = Table(
+                    title="[title]Top 10 Latest Conversations[/title]", title_justify="left")
+                table.add_column(
+                    "[column]Number[/column]", justify="left")
+                table.add_column(
+                    "[column]Conversation ID[/column]", justify="left")
+
+                for i, row in enumerate(latest_chat):
                     chat_id = row[0]
                     table.add_row(f"[cyan]{i+1}[/cyan]",
                                   f"[row]{chat_id}[/row]")
@@ -78,7 +99,7 @@ def main():
                     "[info]💬 This conversation is empty. Type a message to get started![/info]")
             continue
 
-        # ---- Retrieve conversations from sql database based on conversation id
+            # ---- Retrieve conversations from sql database based on conversation id
         id_regex = r"^conv_[0-9a-fA-F]{48}$"
 
         if re.match(id_regex, user_input.strip()):

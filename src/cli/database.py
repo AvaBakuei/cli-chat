@@ -28,7 +28,7 @@ def init_db():
 def save_conversations(conversation_id, role, content):
     with sqlite3.connect(str(DB_PATH)) as conn:
         sql_query = """ INSERT INTO conversations(conversation_id, role, content)
-        VALUES(?, ?, ?)"""
+        VALUES(?, ?, ?) """
         cursor = conn.cursor()
         cursor.execute(sql_query, (conversation_id, role, content))
 
@@ -49,9 +49,17 @@ def show_conversation(conversation_id):
         return cursor.fetchall()
 
 
+def get_latest_conversations(limit=10):
+    with sqlite3.connect(str(DB_PATH)) as conn:
+        sql_query = """ SELECT conversation_id FROM conversations GROUP BY conversation_id ORDER BY MAX(id) DESC LIMIT ? """
+        cursor = conn.cursor()
+        cursor.execute(sql_query, (limit, ))
+        return cursor.fetchall()
+
+
 def delete_all_conversations():
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ DELETE FROM conversations"""
+        sql_query = """ DELETE FROM conversations """
         cursor = conn.cursor()
         cursor.execute(sql_query)
         conn.isolation_level = None
