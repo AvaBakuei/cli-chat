@@ -11,6 +11,7 @@ def init_db():
     create_table = """CREATE TABLE IF NOT EXISTS conversations(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             conversation_id TEXT,
+            title TEXT,
             role TEXT, 
             content TEXT, 
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 
@@ -25,17 +26,24 @@ def init_db():
         print(e)
 
 
-def save_conversations(conversation_id, role, content):
+def save_conversations(conversation_id, title, role, content, timestamp):
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ INSERT INTO conversations(conversation_id, role, content)
-        VALUES(?, ?, ?) """
+        sql_query = """ INSERT INTO conversations(conversation_id, title, role, content, timestamp)
+        VALUES(?, ?, ?, ?, ?) """
         cursor = conn.cursor()
-        cursor.execute(sql_query, (conversation_id, role, content))
+        cursor.execute(sql_query, (conversation_id,
+                       title, role, content, timestamp))
 
 
 def get_all_conversations():
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ SELECT DISTINCT conversation_id FROM conversations """
+        sql_query = """
+            SELECT MAX(timestamp), title, conversation_id
+            FROM conversations
+            GROUP BY conversation_id
+            ORDER BY timestamp DESC
+        """
+
         cursor = conn.cursor()
         cursor.execute(sql_query)
         return cursor.fetchall()
