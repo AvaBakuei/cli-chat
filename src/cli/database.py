@@ -41,6 +41,14 @@ def get_all_conversations():
         return cursor.fetchall()
 
 
+def show_conversation(conversation_id):
+    with sqlite3.connect(str(DB_PATH)) as conn:
+        sql_query = """ SELECT * FROM conversations WHERE conversation_id = ? """
+        cursor = conn.cursor()
+        cursor.execute(sql_query, (conversation_id, ))
+        return cursor.fetchall()
+
+
 def delete_all_conversations():
     with sqlite3.connect(str(DB_PATH)) as conn:
         sql_query = """ DELETE FROM conversations"""

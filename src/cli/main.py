@@ -1,12 +1,13 @@
 import os
 import typer
+import re
 from dotenv import load_dotenv
 from openai import OpenAI
 from rich.console import Console
 from rich.theme import Theme
 from rich.panel import Panel
 from rich.table import Table
-from database import init_db, save_conversations, get_all_conversations, delete_all_conversations
+from database import init_db, save_conversations, get_all_conversations, delete_all_conversations, show_conversation
 
 load_dotenv()
 
@@ -58,25 +59,58 @@ def main():
         # ---- Show a list of conversations:
         if user_input.strip().lower() == "/resume":
             past_chats = get_all_conversations()
+            if past_chats:
+                table = Table(
+                    title="[title]List of Conversations[/title]", title_justify="left")
+                table.add_column(
+                    "[column]Number[/column]", justify="left")
+                table.add_column(
+                    "[column]Conversation ID[/column]", justify="left")
 
+                for i, row in enumerate(past_chats):
+                    chat_id = row[0]
+                    table.add_row(f"[cyan]{i+1}[/cyan]",
+                                  f"[row]{chat_id}[/row]")
+
+                console.print(table)
+            else:
+                console.print(
+                    "[info]💬 This conversation is empty. Type a message to get started![/info]")
+            continue
+
+        # ---- Retrieve conversations from sql database based on conversation id
+        id_regex = r"^conv_[0-9a-fA-F]{48}$"
+
+        if re.match(id_regex, user_input.strip()):
+            chat_log = show_conversation(user_input.strip())
             table = Table(
-                title="[title]List of Conversations[/title]", title_justify="left")
+                title="[title]Conversation Detail[/title]", title_justify="left")
             table.add_column(
-                "[column]Number[/column]", justify="left")
+                "[column]Role[/column]", justify="left")
             table.add_column(
-                "[column]Conversation ID[/column]", justify="left")
-
-            for i, row in enumerate(past_chats):
-                chat_id = row[0]
-                table.add_row(f"[cyan]{i+1}[/cyan]", f"[row]{chat_id}[/row]")
+                "[column]Content ID[/column]", justify="left")
+            table.add_column(
+                "[column]Timestamp ID[/column]", justify="left")
+            for i, chat in enumerate(chat_log):
+                if i % 2 == 0:
+                    role_style = f"[output]{chat[2]}[/output]"
+                    content_style = f"[output]{chat[3]}[/output]"
+                    time_style = f"[output]{chat[4]}[/output]"
+                else:
+                    role_style = f"[input]{chat[2]}[/input]"
+                    content_style = f"[input]{chat[3]}[/input]"
+                    time_style = f"[input]{chat[4]}[/input]"
+                table.add_row(role_style, content_style, time_style)
 
             console.print(table)
-
             continue
 
         # ---- Delete all of conversations:
         if user_input.strip().lower() == "/delete":
             delete_all_conversations()
+            console.print(
+                "[info]💥 All conversations have been permanently deleted![/info]")
+
             continue
 
         save_conversations(conversation.id, "user", user_input)
