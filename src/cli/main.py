@@ -37,6 +37,8 @@ def draw_table(selected_index, data):
     table = Table(
         title="[title]List of Conversations[/title]", title_justify="left")
     table.add_column(
+        "[column]ID[/column]", justify="left")
+    table.add_column(
         "[column]Title[/column]", justify="left")
     table.add_column(
         "[column]Created at[/column]", justify="left")
@@ -51,9 +53,9 @@ def draw_table(selected_index, data):
 
         readable_date = datetime.fromtimestamp(
             created_at).strftime("%Y-%m-%d %H:%M")
-        table.add_row(title, readable_date, style=style)
+        table.add_row(str(index + 1), title, readable_date, style=style)
 
-    hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
+    hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press Press [bold][Number][/bold] or [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
     return Group(table, hint_text)
 
 
@@ -131,6 +133,11 @@ def main():
                     elif pressed == key.ENTER:
                         retrieve_conversation(all_chats[current_selection])
                         break
+                    elif pressed.isdigit:
+                        selection = int(pressed)
+                        retrieve_conversation(all_chats[selection - 1])
+                        break
+
                     elif pressed == key.CTRL_C:
                         sys.exit(0)
 
