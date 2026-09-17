@@ -11,7 +11,7 @@ from rich.live import Live
 from rich.console import Group
 from readchar import readkey, key
 from datetime import datetime
-from database import init_db, save_conversations, get_all_conversations, delete_all_conversations, show_conversation, get_latest_conversations
+from database import init_db, save_conversations, get_all_conversations, delete_all_conversations, show_conversation
 
 load_dotenv()
 
@@ -33,7 +33,7 @@ custom_theme = Theme({
 console = Console(theme=custom_theme)
 
 
-def draw_table(selected_index, data):
+def draw_table(selected_index, data, has_back=False, has_more=False, page=0, items_per_page=10):
     table = Table(
         title="[title]List of Conversations[/title]", title_justify="left")
     table.add_column(
@@ -43,17 +43,29 @@ def draw_table(selected_index, data):
     table.add_column(
         "[column]Created at[/column]", justify="left")
 
-    for index, (created_at, title, id) in enumerate(data):
-        if index == selected_index:
-            style = "bold slate_blue1 on dark_olive_green1"
-            id = f"{id}"
-        else:
-            style = "row"
-            id = f"{id}"
+    for index in range(len(data) + 2):
+        style = "bold slate_blue1 on dark_olive_green1" if index == selected_index else "row"
 
+        if index == 0:
+            if has_back:
+                table.add_row("back", "", "", style=style)
+            else:
+                table.add_row("", "", "", style="row")
+            continue
+
+        if index == len(data) + 1:
+            if has_more:
+                table.add_row("more", "", "", style=style)
+            else:
+                table.add_row("", "", "", style="row")
+            continue
+        created_at, title, item_id = data[index - 1]
         readable_date = datetime.fromtimestamp(
             created_at).strftime("%Y-%m-%d %H:%M")
-        table.add_row(str(index + 1), title, readable_date, style=style)
+
+        display_index = (page * items_per_page) + index
+
+        table.add_row(str(display_index), title, readable_date, style=style)
 
     hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press Press [bold][Number][/bold] or [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
     return Group(table, hint_text)
@@ -62,6 +74,7 @@ def draw_table(selected_index, data):
 def retrieve_conversation(selected_conversation):
     # ---- Retrieve conversations from sql database based on conversation id
     chat_log = show_conversation(selected_conversation[2])
+    print("selected_conversation", selected_conversation)
     table = Table(
         title=f"[title]{chat_log[1][2]}[/title]", title_justify="left")
     table.add_column(
@@ -83,7 +96,7 @@ def retrieve_conversation(selected_conversation):
             content_style = f"[output]{content}[/output]"
             time_style = f"[output]{readable_date}[/output]"
         table.add_row(role_style, content_style, time_style)
-
+    print(f"DEBUG: Found {len(chat_log)} messages for this chat.")
     return console.print(table)
 
 
@@ -91,7 +104,9 @@ def retrieve_conversation(selected_conversation):
 def main():
     init_db()
     global conversation
-    current_selection = 0
+    ITEMS_PER_PAGE = 10
+    current_page = 0
+    current_selection = 1
     all_chats = []
 
     while True:
@@ -122,17 +137,38 @@ def main():
                     "[info]💬 This conversation is empty. Type a message to get started![/info]")
                 continue
 
-            with Live(draw_table(current_selection, all_chats), console=console, auto_refresh=False, transient=True) as live:
+            with Live(draw_table([], []), console=console, auto_refresh=False, transient=True) as live:
                 while True:
+                    start_index = current_page * ITEMS_PER_PAGE
+                    end_index = start_index + ITEMS_PER_PAGE
+
+                    page_data = all_chats[start_index:end_index]
+
+                    has_back = current_page > 0
+                    has_more = end_index < len(all_chats)
+
+                    live.update(draw_table(current_selection,
+                                           page_data, has_back, has_more, page=current_page, items_per_page=ITEMS_PER_PAGE), refresh=True)
+
                     pressed = readkey()
                     if pressed == key.UP:
                         current_selection = max(0, current_selection - 1)
                     elif pressed == key.DOWN:
                         current_selection = min(
-                            len(all_chats) - 1, current_selection + 1)
+                            len(page_data) + 1, current_selection + 1)
                     elif pressed == key.ENTER:
-                        retrieve_conversation(all_chats[current_selection])
-                        break
+                        if current_selection == 0 and has_back:
+                            current_page -= 1
+                            current_selection = start_index
+                        elif current_selection == len(page_data) + 1 and has_more:
+                            current_page += 1
+                            current_selection = 1
+                        elif 1 <= current_selection <= len(page_data):
+                            actual_chat_index = start_index + \
+                                (current_selection - 1)
+                            selected_chat = all_chats[actual_chat_index]
+                            retrieve_conversation(selected_chat)
+                            break
                     elif pressed.isdigit:
                         selection = int(pressed)
                         retrieve_conversation(all_chats[selection - 1])
@@ -141,30 +177,6 @@ def main():
                     elif pressed == key.CTRL_C:
                         sys.exit(0)
 
-                    live.update(draw_table(current_selection,
-                                all_chats), refresh=True)
-            continue
-
-        # ---- Show a 10 latest conversations:
-        if user_input.strip().lower() == "/latest":
-            latest_chat = get_latest_conversations(10)
-            if latest_chat:
-                table = Table(
-                    title="[title]Top 10 Latest Conversations[/title]", title_justify="left")
-                table.add_column(
-                    "[column]Number[/column]", justify="left")
-                table.add_column(
-                    "[column]Conversation ID[/column]", justify="left")
-
-                for i, row in enumerate(latest_chat):
-                    chat_id = row[0]
-                    table.add_row(f"[cyan]{i+1}[/cyan]",
-                                  f"[row]{chat_id}[/row]")
-
-                console.print(table)
-            else:
-                console.print(
-                    "[info]💬 This conversation is empty. Type a message to get started![/info]")
             continue
 
         # ---- Delete all of conversations:
@@ -193,8 +205,8 @@ def main():
                 metadata={"title": client_title}
             )
 
-            save_conversations(
-                conversation.id, client_title, "user", user_input, conversation.created_at)
+        save_conversations(
+            conversation.id, client_title, "user", user_input, conversation.created_at)
 
         with console.status("[loading]Thinking... [/loading]"):
             response = client.responses.create(

@@ -29,7 +29,8 @@ def init_db():
 def save_conversations(conversation_id, title, role, content, timestamp):
     with sqlite3.connect(str(DB_PATH)) as conn:
         sql_query = """ INSERT INTO conversations(conversation_id, title, role, content, timestamp)
-        VALUES(?, ?, ?, ?, ?) """
+            VALUES(?, ?, ?, ?, ?) 
+            """
         cursor = conn.cursor()
         cursor.execute(sql_query, (conversation_id,
                        title, role, content, timestamp))
@@ -41,8 +42,8 @@ def get_all_conversations():
             SELECT MAX(timestamp), title, conversation_id
             FROM conversations
             GROUP BY conversation_id
-            ORDER BY timestamp DESC
-        """
+            ORDER BY timestamp DESC 
+            """
 
         cursor = conn.cursor()
         cursor.execute(sql_query)
@@ -51,17 +52,12 @@ def get_all_conversations():
 
 def show_conversation(conversation_id):
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ SELECT * FROM conversations WHERE conversation_id = ? """
+        sql_query = """ SELECT * FROM conversations 
+            WHERE conversation_id = ? 
+            ORDER BY timestamp ASC
+            """
         cursor = conn.cursor()
         cursor.execute(sql_query, (conversation_id, ))
-        return cursor.fetchall()
-
-
-def get_latest_conversations(limit=10):
-    with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ SELECT conversation_id FROM conversations GROUP BY conversation_id ORDER BY MAX(id) DESC LIMIT ? """
-        cursor = conn.cursor()
-        cursor.execute(sql_query, (limit, ))
         return cursor.fetchall()
 
 
