@@ -37,7 +37,8 @@ def show_conversation(conversation_id):
             WHERE conversation_id = ? 
             ORDER BY timestamp ASC
             """
-    return fetchByID(query, conversation_id)
+    params = conversation_id
+    return fetchByID(query, params)
 
 
 def delete_all_conversations():

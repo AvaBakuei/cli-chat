@@ -30,10 +30,10 @@ def fetchFromDb(query):
         return cursor.fetchall()
 
 
-def fetchByID(query, conversation_id):
+def fetchByID(query, params):
     with sqlite3.connect(str(DB_PATH)) as conn:
         cursor = conn.cursor()
-        cursor.execute(query, (conversation_id, ))
+        cursor.execute(query, (params, ))
         return cursor.fetchall()
 
 
