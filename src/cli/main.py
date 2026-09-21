@@ -3,7 +3,10 @@ import typer
 from dotenv import load_dotenv
 from openai import OpenAI
 from rich.console import Console
-from layer.ui.theme import custom_theme
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.formatted_text import HTML
+from layer.ui.theme import custom_theme, custom_style
 from cli.LocalRepository import init_db
 from layer.command import handle_new_command, hanlde_resume_command, handle_delete_command, handle_exit_command
 from layer.ui.display import conversation_disply
@@ -28,14 +31,20 @@ def main():
     current_selection = 1
     all_chats = []
 
+    slash_completer = WordCompleter(
+        ["/new", "/resume", "/delete", "/exit"], WORD=True)
     while True:
-        user_input = console.input(
-            "[prompt]You ❯ [/prompt]")
+        user_input = prompt(
+            HTML('<user-prompt>You ❯ </user-prompt>'),
+            completer=slash_completer,
+            complete_while_typing=True,
+            style=custom_style
+        )
 
         if not user_input.strip():
             continue
 
-        # ---- Exit form chat
+            # ---- Exit form chat
         if handle_exit_command(user_input, console):
             break
 
