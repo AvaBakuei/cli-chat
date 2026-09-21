@@ -3,11 +3,11 @@ import typer
 from dotenv import load_dotenv
 from openai import OpenAI
 from rich.console import Console
-from src.layer.theme import custom_theme
-from src.cli.database import init_db
-from src.layer.command import handle_new_command, hanlde_resume_command, handle_delete_command, handle_exit_command
-from src.layer.display import conversation_disply
-from src.cli.api import openai_api
+from layer.ui.theme import custom_theme
+from cli.LocalRepository import init_db
+from layer.command import handle_new_command, hanlde_resume_command, handle_delete_command, handle_exit_command
+from layer.ui.display import conversation_disply
+from cli.remoteRepository import openai_api
 
 load_dotenv()
 

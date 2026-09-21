@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from src.cli.database import save_conversations
-from src.layer.display import conversation_disply
+from cli.LocalRepository import save_conversations
+from layer.ui.display import conversation_disply
 
 
 load_dotenv()

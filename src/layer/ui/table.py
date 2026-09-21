@@ -2,8 +2,8 @@ from rich.table import Table
 from datetime import datetime
 from rich.console import Group
 from rich.console import Console
-from src.cli.database import show_conversation
-from src.layer.theme import custom_theme
+from src.cli.LocalRepository import show_conversation
+from layer.ui.theme import custom_theme
 
 
 console = Console(theme=custom_theme)

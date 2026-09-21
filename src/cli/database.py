@@ -1,22 +1,13 @@
 import sqlite3
 from pathlib import Path
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 DB_PATH = BASE_DIR / "data/chat.db"
 
 
-# Initialize Database
-def init_db():
-    create_table = """CREATE TABLE IF NOT EXISTS conversations(
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            conversation_id TEXT,
-            title TEXT,
-            role TEXT, 
-            content TEXT, 
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 
-        );"""
-
+def initToDb(create_table):
     try:
         with sqlite3.connect(str(DB_PATH)) as conn:
             cursor = conn.cursor()
@@ -26,45 +17,29 @@ def init_db():
         print(e)
 
 
-def save_conversations(conversation_id, title, role, content, timestamp):
+def insertToDb(query, params):
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ INSERT INTO conversations(conversation_id, title, role, content, timestamp)
-            VALUES(?, ?, ?, ?, ?) 
-            """
         cursor = conn.cursor()
-        cursor.execute(sql_query, (conversation_id,
-                       title, role, content, timestamp))
+        cursor.execute(query, params)
 
 
-def get_all_conversations():
+def fetchFromDb(query):
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """
-            SELECT MAX(timestamp), title, conversation_id
-            FROM conversations
-            GROUP BY conversation_id
-            ORDER BY timestamp DESC 
-            """
-
         cursor = conn.cursor()
-        cursor.execute(sql_query)
+        cursor.execute(query)
         return cursor.fetchall()
 
 
-def show_conversation(conversation_id):
+def fetchByID(query, conversation_id):
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ SELECT * FROM conversations 
-            WHERE conversation_id = ? 
-            ORDER BY timestamp ASC
-            """
         cursor = conn.cursor()
-        cursor.execute(sql_query, (conversation_id, ))
+        cursor.execute(query, (conversation_id, ))
         return cursor.fetchall()
 
 
-def delete_all_conversations():
+def deleteFromDb(query):
     with sqlite3.connect(str(DB_PATH)) as conn:
-        sql_query = """ DELETE FROM conversations """
         cursor = conn.cursor()
-        cursor.execute(sql_query)
+        cursor.execute(query)
         conn.isolation_level = None
         conn.execute("VACUUM")

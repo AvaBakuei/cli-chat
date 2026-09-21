@@ -1,8 +1,8 @@
 import sys
 from rich.live import Live
 from readchar import readkey, key
-from src.layer.table import draw_table, get_conversation_table
-from src.cli.database import get_all_conversations, delete_all_conversations
+from layer.ui.table import draw_table, get_conversation_table
+from cli.LocalRepository import get_all_conversations, delete_all_conversations
 
 
 def handle_new_command(user_input, console):
