@@ -15,7 +15,7 @@ def handle_new_command(user_input, console):
     return True
 
 
-def hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, current_selection, all_chats):
+def hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, current_selection, all_chats, result_data):
     if user_input.strip().lower() != "/resume":
         return False
     all_chats = get_all_conversations()
@@ -56,6 +56,7 @@ def hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, cur
                     selected_chat = all_chats[actual_chat_index]
                     chat_history_group = get_chat_history(selected_chat)
                     console.print(chat_history_group)
+                    result_data["selected_chat"] = selected_chat[2]
                     break
 
             elif pressed == key.CTRL_C:

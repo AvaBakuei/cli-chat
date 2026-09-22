@@ -30,6 +30,7 @@ def main():
     current_page = 0
     current_selection = 1
     all_chats = []
+    result_data = {}
 
     slash_completer = WordCompleter(
         ["/new", "/resume", "/delete", "/exit"], WORD=True)
@@ -54,7 +55,8 @@ def main():
             continue
 
         # ---- Show a list of conversations:
-        if hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, current_selection, all_chats):
+        if hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, current_selection, all_chats, result_data):
+            conversation.id = result_data.get("selected_chat")
             continue
 
         # ---- Delete all of conversations:
