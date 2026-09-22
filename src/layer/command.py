@@ -1,7 +1,8 @@
 import sys
 from rich.live import Live
 from readchar import readkey, key
-from layer.ui.table import draw_table, get_conversation_table
+from layer.ui.table import draw_table
+from layer.ui.chat import get_chat_history
 from cli.LocalRepository import get_all_conversations, delete_all_conversations
 
 
@@ -53,8 +54,8 @@ def hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, cur
                     actual_chat_index = start_index + \
                         (current_selection - 1)
                     selected_chat = all_chats[actual_chat_index]
-                    chat_table = get_conversation_table(selected_chat)
-                    console.print(chat_table)
+                    chat_history_group = get_chat_history(selected_chat)
+                    console.print(chat_history_group)
                     break
 
             elif pressed == key.CTRL_C:

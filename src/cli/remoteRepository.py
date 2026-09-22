@@ -41,4 +41,6 @@ def openai_api(user_input, conversation, console):
 
         save_conversations(conversation.id, client_title,
                            "assistant", chat_output, conversation.created_at)
-        conversation_disply(chat_output, console, is_user=False)
+        chat_conversation = conversation_disply(
+            chat_output, console, is_user=False)
+        console.print(chat_conversation)

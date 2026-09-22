@@ -2,7 +2,6 @@ from rich.table import Table
 from datetime import datetime
 from rich.console import Group
 from rich.console import Console
-from src.cli.LocalRepository import show_conversation
 from layer.ui.theme import custom_theme
 
 
@@ -45,30 +44,3 @@ def draw_table(selected_index, data, has_back=False, has_more=False, page=0, ite
 
     hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press Press [bold][Number][/bold] or [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
     return Group(table, hint_text)
-
-
-def get_conversation_table(selected_conversation):
-    # ---- Retrieve conversations from sql database based on conversation id
-    chat_log = show_conversation(selected_conversation[2])
-    table = Table(
-        title=f"[title]{chat_log[1][2]}[/title]", title_justify="left")
-    table.add_column(
-        "[column]Role[/column]", justify="left")
-    table.add_column(
-        "[column]Content[/column]", justify="left")
-    table.add_column(
-        "[column]Created at[/column]", justify="left")
-    for chat in chat_log:
-        msg_id, conv_id, title, role, content, created_at = chat
-        readable_date = datetime.fromtimestamp(
-            created_at).strftime("%Y-%m-%d %H:%M")
-        if role.lower() == "user":
-            role_style = f"[input]{role}[/input]"
-            content_style = f"[input]{content}[/input]"
-            time_style = f"[input]{readable_date}[/input]"
-        else:
-            role_style = f"[output]{role}[/output]"
-            content_style = f"[output]{content}[/output]"
-            time_style = f"[output]{readable_date}[/output]"
-        table.add_row(role_style, content_style, time_style)
-    return table

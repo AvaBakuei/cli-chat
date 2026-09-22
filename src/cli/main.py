@@ -61,7 +61,8 @@ def main():
         if handle_delete_command(user_input, console):
             continue
 
-        conversation_disply(user_input, console)
+        user_conversation = conversation_disply(user_input, console)
+        console.print(user_conversation)
 
         openai_api(user_input, conversation, console)
 
