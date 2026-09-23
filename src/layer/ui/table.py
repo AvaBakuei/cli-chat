@@ -42,5 +42,5 @@ def draw_table(selected_index, data, has_back=False, has_more=False, page=0, ite
 
         table.add_row(str(display_index), title, readable_date, style=style)
 
-    hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press Press [bold][Number][/bold] or [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
+    hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
     return Group(table, hint_text)
