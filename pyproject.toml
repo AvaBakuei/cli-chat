@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cli-chat"
+version = "0.1.0"
+description = "A terminal chat client for the OpenAI API"
+requires-python = ">=3.10"
+dependencies = [
+    "typer",
+    "rich",
+    "prompt_toolkit",
+    "openai",
+    "python-dotenv",
+    "readchar",
+]
+
+[project.scripts]
+cli-chat = "cli.main:app"   # will become "cli_chat.main:app" in step 5
+
+[tool.setuptools.packages.find]
+where = ["src"]
