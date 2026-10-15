@@ -1,5 +1,4 @@
 import sqlite3
-from pathlib import Path
 from cli.config import get_settings
 
 

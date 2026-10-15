@@ -18,7 +18,7 @@ load_dotenv(PROJECT_ROOT/".env")
 class Settings:
     openai_api_key: str
     model: str
-    db_path: str
+    db_path: Path
     items_per_page: int
 
 
