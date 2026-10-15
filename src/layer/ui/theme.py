@@ -1,7 +1,7 @@
 from rich.theme import Theme
 from prompt_toolkit.styles import Style
 
-custom_theme = Theme({
+rich_theme = Theme({
     "prompt": "bold cyan",
     "loading": "chartreuse2",
     "input": "bold magenta",
@@ -13,7 +13,7 @@ custom_theme = Theme({
 })
 
 
-custom_style = Style.from_dict({
+prompt_style = Style.from_dict({
     'user-prompt': 'fg:cyan bold',
     'completion-menu': 'bg:#2a2a2a fg:#dcdcdc',
     'completion-menu.completion.current': 'bg:#A178DF fg:#ffffff bold',

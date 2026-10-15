@@ -5,11 +5,11 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.formatted_text import HTML
 from cli.config import get_settings
-from layer.ui.theme import custom_theme, custom_style
-from cli.LocalRepository import init_db
-from layer.command import handle_new_command, hanlde_resume_command, handle_delete_command, handle_exit_command
-from layer.ui.display import conversation_disply
-from cli.remoteRepository import openai_api
+from layer.ui.theme import rich_theme, prompt_style
+from cli.conversation_repository import init_db
+from layer.commands import handle_new_command, handle_resume_command, handle_delete_command, handle_exit_command
+from layer.ui.panels import build_message_panel
+from cli.chat_service import send_message
 
 
 app = typer.Typer()
@@ -17,14 +17,14 @@ client = OpenAI(api_key=get_settings().openai_api_key)
 conversation = client.conversations.create()
 
 
-console = Console(theme=custom_theme)
+console = Console(theme=rich_theme)
 
 
 @app.command()
 def main():
     init_db()
     global conversation
-    ITEMS_PER_PAGE = get_settings().items_per_page
+    items_per_page = get_settings().items_per_page
     current_page = 0
     current_selection = 1
     all_chats = []
@@ -37,13 +37,13 @@ def main():
             HTML('<user-prompt>You ❯ </user-prompt>'),
             completer=slash_completer,
             complete_while_typing=True,
-            style=custom_style
+            style=prompt_style
         )
 
         if not user_input.strip():
             continue
 
-            # ---- Exit form chat
+        # ---- Exit form chat
         if handle_exit_command(user_input, console):
             break
 
@@ -53,7 +53,7 @@ def main():
             continue
 
         # ---- Show a list of conversations:
-        if hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, current_selection, all_chats, result_data):
+        if handle_resume_command(user_input, console, items_per_page, current_page, current_selection, all_chats, result_data):
             conversation.id = result_data.get("selected_chat")
             continue
 
@@ -61,10 +61,10 @@ def main():
         if handle_delete_command(user_input, console):
             continue
 
-        user_conversation = conversation_disply(user_input, console)
-        console.print(user_conversation)
+        user_panel = build_message_panel(user_input)
+        console.print(user_panel)
 
-        openai_api(user_input, conversation, console)
+        send_message(user_input, conversation, console)
 
 
 if __name__ == "__main__":

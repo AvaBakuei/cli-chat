@@ -1,14 +1,8 @@
 from rich.table import Table
 from datetime import datetime
 from rich.console import Group
-from rich.console import Console
-from layer.ui.theme import custom_theme
 
-
-console = Console(theme=custom_theme)
-
-
-def draw_table(selected_index, data, has_back=False, has_more=False, page=0, items_per_page=10):
+def build_conversation_table(selected_index, data, has_back=False, has_more=False, page=0, items_per_page=10):
     table = Table(
         title="[title]List of Conversations[/title]", title_justify="left")
     table.add_column(

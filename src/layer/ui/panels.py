@@ -1,7 +1,7 @@
 from rich.panel import Panel
 
 
-def conversation_disply(text, console, is_user=True):
+def build_message_panel(text, is_user=True):
     if is_user:
         combined_input_text = f"[input]{text}[/input]"
         panel = Panel(combined_input_text, title="[input]User[/input]",

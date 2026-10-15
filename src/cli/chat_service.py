@@ -3,8 +3,8 @@ import threading
 from openai import OpenAI
 from readchar import readkey
 from cli.config import get_settings
-from cli.LocalRepository import save_conversations
-from layer.ui.display import conversation_disply
+from cli.conversation_repository import save_message
+from layer.ui.panels import build_message_panel
 
 
 client = OpenAI(api_key=get_settings().openai_api_key)
@@ -29,7 +29,7 @@ def listen_for_cancel(console):
         cancel_all_responses(console)
 
 
-def openai_api(user_input, conversation, console):
+def send_message(user_input, conversation, console):
     is_first_turn_of_chat = "title" not in conversation.metadata
 
     cancel_event.clear()
@@ -71,15 +71,15 @@ def openai_api(user_input, conversation, console):
             if cancel_event.is_set():
                 return
 
-            client_title = title_response.output_text
+            title = title_response.output_text
 
             conversation = client.conversations.update(
                 conversation_id=conversation.id,
-                metadata={"title": client_title}
+                metadata={"title": title}
             )
 
-        save_conversations(
-            conversation.id, client_title, "user", user_input, conversation.created_at)
+        save_message(
+            conversation.id, title, "user", user_input, conversation.created_at)
 
         response = client.responses.create(
             model=get_settings().model,
@@ -107,10 +107,10 @@ def openai_api(user_input, conversation, console):
         if cancel_event.is_set():
             return
 
-        chat_output = response.output_text
+        answer_text = response.output_text
 
-        save_conversations(conversation.id, client_title,
-                           "assistant", chat_output, conversation.created_at)
-        chat_conversation = conversation_disply(
-            chat_output, console, is_user=False)
+        save_message(conversation.id, title,
+                           "assistant", answer_text, conversation.created_at)
+        chat_conversation = build_message_panel(
+            answer_text, is_user=False)
         console.print(chat_conversation)

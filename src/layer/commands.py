@@ -1,9 +1,9 @@
 import sys
 from rich.live import Live
 from readchar import readkey, key
-from layer.ui.table import draw_table
-from layer.ui.chat import get_chat_history
-from cli.LocalRepository import get_all_conversations, delete_all_conversations
+from layer.ui.conversation_table import build_conversation_table
+from layer.ui.history import build_history_view
+from cli.conversation_repository import list_conversations, delete_all_conversations
 
 
 def handle_new_command(user_input, console):
@@ -15,27 +15,27 @@ def handle_new_command(user_input, console):
     return True
 
 
-def hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, current_selection, all_chats, result_data):
+def handle_resume_command(user_input, console, items_per_page, current_page, current_selection, all_chats, result_data):
     if user_input.strip().lower() != "/resume":
         return False
-    all_chats = get_all_conversations()
+    all_chats = list_conversations()
     if not all_chats:
         console.print(
             "[info]💬 This conversation is empty. Type a message to get started![/info]")
         return True
 
-    with Live(draw_table([], []), console=console, auto_refresh=False, transient=True) as live:
+    with Live(build_conversation_table([], []), console=console, auto_refresh=False, transient=True) as live:
         while True:
-            start_index = current_page * ITEMS_PER_PAGE
-            end_index = start_index + ITEMS_PER_PAGE
+            start_index = current_page * items_per_page
+            end_index = start_index + items_per_page
 
             page_data = all_chats[start_index:end_index]
 
             has_back = current_page > 0
             has_more = end_index < len(all_chats)
 
-            live.update(draw_table(current_selection,
-                                   page_data, has_back, has_more, page=current_page, items_per_page=ITEMS_PER_PAGE), refresh=True)
+            live.update(build_conversation_table(current_selection,
+                                   page_data, has_back, has_more, page=current_page, items_per_page=items_per_page), refresh=True)
 
             pressed = readkey()
             if pressed == key.UP:
@@ -54,7 +54,7 @@ def hanlde_resume_command(user_input, console, ITEMS_PER_PAGE, current_page, cur
                     actual_chat_index = start_index + \
                         (current_selection - 1)
                     selected_chat = all_chats[actual_chat_index]
-                    chat_history_group = get_chat_history(selected_chat)
+                    chat_history_group = build_history_view(selected_chat)
                     console.print(chat_history_group)
                     result_data["selected_chat"] = selected_chat[2]
                     break

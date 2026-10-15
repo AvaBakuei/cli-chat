@@ -1,4 +1,4 @@
-from cli.database import initToDb, insertToDb, fetchFromDb, fetchByID, deleteFromDb
+from cli.database import create_schema, execute_write, fetch_all, fetch_all_with_param, delete_and_vacuum
 
 
 def init_db():
@@ -10,37 +10,37 @@ def init_db():
             content TEXT, 
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 
         );"""
-    initToDb(create_table)
+    create_schema(create_table)
 
 
-def save_conversations(conversation_id, title, role, content, timestamp):
+def save_message(conversation_id, title, role, content, timestamp):
     query = """ INSERT INTO conversations(conversation_id, title, role, content, timestamp)
                     VALUES(?, ?, ?, ?, ?) 
                     """
     params = (conversation_id,
               title, role, content, timestamp)
-    insertToDb(query, params)
+    execute_write(query, params)
 
 
-def get_all_conversations():
+def list_conversations():
     query = """
             SELECT MAX(timestamp), title, conversation_id
             FROM conversations
             GROUP BY conversation_id
             ORDER BY timestamp DESC 
             """
-    return fetchFromDb(query)
+    return fetch_all(query)
 
 
-def show_conversation(conversation_id):
+def get_messages(conversation_id):
     query = """ SELECT * FROM conversations 
             WHERE conversation_id = ? 
             ORDER BY timestamp ASC
             """
     params = conversation_id
-    return fetchByID(query, params)
+    return fetch_all_with_param(query, params)
 
 
 def delete_all_conversations():
     query = """ DELETE FROM conversations """
-    deleteFromDb(query)
+    delete_and_vacuum(query)
