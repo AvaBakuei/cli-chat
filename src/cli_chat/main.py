@@ -4,12 +4,12 @@ from rich.console import Console
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.formatted_text import HTML
-from cli.config import get_settings
-from layer.ui.theme import rich_theme, prompt_style
-from cli.conversation_repository import init_db
-from layer.commands import handle_new_command, handle_resume_command, handle_delete_command, handle_exit_command
-from layer.ui.panels import build_message_panel
-from cli.chat_service import send_message
+from cli_chat.config import get_settings
+from cli_chat.ui.theme import rich_theme, prompt_style
+from cli_chat.storage.conversation_repository import init_db
+from cli_chat.commands.handlers import handle_new_command, handle_resume_command, handle_delete_command, handle_exit_command
+from cli_chat.ui.panels import build_message_panel
+from cli_chat.services.chat_service import send_message
 
 
 app = typer.Typer()

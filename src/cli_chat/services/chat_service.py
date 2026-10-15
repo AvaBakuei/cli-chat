@@ -2,9 +2,9 @@ import time
 import threading
 from openai import OpenAI
 from readchar import readkey
-from cli.config import get_settings
-from cli.conversation_repository import save_message
-from layer.ui.panels import build_message_panel
+from cli_chat.config import get_settings
+from cli_chat.storage.conversation_repository import save_message
+from cli_chat.ui.panels import build_message_panel
 
 
 client = OpenAI(api_key=get_settings().openai_api_key)

@@ -1,9 +1,9 @@
 import sys
 from rich.live import Live
 from readchar import readkey, key
-from layer.ui.conversation_table import build_conversation_table
-from layer.ui.history import build_history_view
-from cli.conversation_repository import list_conversations, delete_all_conversations
+from cli_chat.ui.conversation_table import build_conversation_table
+from cli_chat.ui.history import build_history_view
+from cli_chat.storage.conversation_repository import list_conversations, delete_all_conversations
 
 
 def handle_new_command(user_input, console):

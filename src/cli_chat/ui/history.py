@@ -1,6 +1,6 @@
 from rich.console import Group
-from cli.conversation_repository import get_messages
-from layer.ui.panels import build_message_panel
+from cli_chat.storage.conversation_repository import get_messages
+from cli_chat.ui.panels import build_message_panel
 
 
 def build_history_view(selected_conversation):

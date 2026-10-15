@@ -1,11 +1,11 @@
-from cli.database import create_schema, execute_write, fetch_all, fetch_all_with_param, delete_and_vacuum
+from cli_chat.storage.database import create_schema, execute_write, fetch_all, fetch_all_with_param, delete_and_vacuum
 
 
 def init_db():
     create_table = """CREATE TABLE IF NOT EXISTS conversations(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             conversation_id TEXT,
-            title TEXT,
+            title TEXT,s
             role TEXT, 
             content TEXT, 
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 

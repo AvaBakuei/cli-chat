@@ -1,5 +1,5 @@
 import sqlite3
-from cli.config import get_settings
+from cli_chat.config import get_settings
 
 
 def create_schema(create_table):
