@@ -1,21 +1,19 @@
-import os
 import typer
-from dotenv import load_dotenv
 from openai import OpenAI
 from rich.console import Console
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.formatted_text import HTML
+from cli.config import get_settings
 from layer.ui.theme import custom_theme, custom_style
 from cli.LocalRepository import init_db
 from layer.command import handle_new_command, hanlde_resume_command, handle_delete_command, handle_exit_command
 from layer.ui.display import conversation_disply
 from cli.remoteRepository import openai_api
 
-load_dotenv()
 
 app = typer.Typer()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=get_settings().openai_api_key)
 conversation = client.conversations.create()
 
 
@@ -26,7 +24,7 @@ console = Console(theme=custom_theme)
 def main():
     init_db()
     global conversation
-    ITEMS_PER_PAGE = 10
+    ITEMS_PER_PAGE = get_settings().items_per_page
     current_page = 0
     current_selection = 1
     all_chats = []

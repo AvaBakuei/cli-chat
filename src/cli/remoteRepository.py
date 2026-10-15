@@ -1,16 +1,13 @@
 import time
 import threading
-import os
-from dotenv import load_dotenv
 from openai import OpenAI
 from readchar import readkey
+from cli.config import get_settings
 from cli.LocalRepository import save_conversations
 from layer.ui.display import conversation_disply
 
 
-load_dotenv()
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=get_settings().openai_api_key)
 
 active_responses = set()
 cancel_event = threading.Event()
@@ -48,7 +45,7 @@ def openai_api(user_input, conversation, console):
         if is_first_turn_of_chat:
 
             title_response = client.responses.create(
-                model="gpt-6-astra",
+                model=get_settings().model,
                 instructions="You are a utility that generates short titles for chat logs. Summarize the user's request in 3 to 5 words. Do not use quotes, punctuation, or prefix words like 'Title:'.",
                 input=[{"role": "user", "content": user_input}],
                 background=True,
@@ -85,7 +82,7 @@ def openai_api(user_input, conversation, console):
             conversation.id, client_title, "user", user_input, conversation.created_at)
 
         response = client.responses.create(
-            model="gpt-6-astra",
+            model=get_settings().model,
             input=[{"role": "user", "content": user_input}],
             conversation=conversation.id,
             background=True

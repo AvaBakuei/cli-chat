@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-cli-chat = "cli.main:app"   # will become "cli_chat.main:app" in step 5
+cli-chat = "cli.main:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
