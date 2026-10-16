@@ -1,7 +1,8 @@
 """Low-level SQLite helpers. This module knows nothing about conversations."""
-import sqlite3
+import sqlite3              
 from collections.abc import Generator
-from contextlib import contextmanager
+from contextlib import contextmanager 
+
 from cli_chat.config import get_settings
 
 

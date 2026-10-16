@@ -3,7 +3,11 @@ from rich.live import Live
 from readchar import readkey, key
 from cli_chat.ui.conversation_table import build_conversation_table
 from cli_chat.ui.history import build_history_view
-from cli_chat.storage.conversation_repository import list_conversations, delete_all_conversations
+from cli_chat.storage.conversation_repository import (
+    delete_all_conversations,
+    get_messages,
+    list_conversations,
+)
 
 
 def handle_new_command(user_input, console):
@@ -53,10 +57,10 @@ def handle_resume_command(user_input, console, items_per_page, current_page, cur
                 elif 1 <= current_selection <= len(page_data):
                     actual_chat_index = start_index + \
                         (current_selection - 1)
-                    selected_chat = all_chats[actual_chat_index]
-                    chat_history_group = build_history_view(selected_chat)
-                    console.print(chat_history_group)
-                    result_data["selected_chat"] = selected_chat[2]
+                    selected = all_chats[actual_chat_index]
+                    messages = get_messages(selected.conversation_id)
+                    console.print(build_history_view(messages))
+                    result_data["selected_chat"] = selected.conversation_id
                     break
 
             elif pressed == key.CTRL_C:

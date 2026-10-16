@@ -28,13 +28,12 @@ def build_conversation_table(selected_index, data, has_back=False, has_more=Fals
             else:
                 table.add_row("", "", "", style="row")
             continue
-        created_at, title, item_id = data[index - 1]
+        conversation = data[index - 1]
         readable_date = datetime.fromtimestamp(
-            created_at).strftime("%Y-%m-%d %H:%M")
-
+            conversation.last_activity).strftime("%Y-%m-%d %H:%M")
         display_index = (page * items_per_page) + index
-
-        table.add_row(str(display_index), title, readable_date, style=style)
+        table.add_row(str(display_index), conversation.title,
+                      readable_date, style=style)
 
     hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
     return Group(table, hint_text)

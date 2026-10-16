@@ -1,16 +1,9 @@
 from rich.console import Group
-from cli_chat.storage.conversation_repository import get_messages
+from cli_chat.models import Message
 from cli_chat.ui.panels import build_message_panel
 
 
-def build_history_view(selected_conversation):
-    chat_log = get_messages(selected_conversation[2])
-    panels = []
-
-    for chat in chat_log:
-        _, _, _, role, content, _ = chat
-
-        is_user = (role.lower() == "user")
-        panel = build_message_panel(content, is_user=is_user)
-        panels.append(panel)
+def build_history_view(messages: list[Message]) -> Group:
+    panels = [build_message_panel(
+        msg.content, is_user=msg.is_user) for msg in messages]
     return Group(*panels)
