@@ -1,40 +1,32 @@
+"""Low-level SQLite helpers. This module knows nothing about conversations."""
 import sqlite3
+from collections.abc import Generator
+from contextlib import contextmanager
 from cli_chat.config import get_settings
 
 
-def create_schema(create_table):
+@contextmanager
+def connect() -> Generator[sqlite3.Connection, None, None]:
+    conn = sqlite3.connect(get_settings().db_path)
+    conn.row_factory = sqlite3.Row
     try:
-        with sqlite3.connect(get_settings().db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute(create_table)
+        with conn:
+            yield conn
+    finally:
+        conn.close()
 
-    except sqlite3.OperationalError as e:
-        print(e)
-
-
-def execute_write(query, params):
-    with sqlite3.connect(get_settings().db_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, params)
+def execute(query: str, params: tuple = ()) -> None:
+    with connect() as conn:
+        conn.execute(query, params)
 
 
-def fetch_all(query):
-    with sqlite3.connect(get_settings().db_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query)
-        return cursor.fetchall()
+def fetch_all(query: str, params: tuple = ()) -> list[sqlite3.Row]:
+    with connect() as conn:
+        return conn.execute(query, params).fetchall()
 
-
-def fetch_all_with_param(query, params):
-    with sqlite3.connect(get_settings().db_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, (params, ))
-        return cursor.fetchall()
-
-
-def delete_and_vacuum(query):
-    with sqlite3.connect(get_settings().db_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query)
-        conn.isolation_level = None
+def vacuum() -> None:
+    conn = sqlite3.connect(get_settings().db_path, isolation_level=None)
+    try:
         conn.execute("VACUUM")
+    finally:
+        conn.close()

@@ -1,4 +1,5 @@
-from cli_chat.storage.database import create_schema, execute_write, fetch_all, fetch_all_with_param, delete_and_vacuum
+import sqlite3
+from cli_chat.storage.database import execute, fetch_all, vacuum
 
 
 def init_db():
@@ -10,7 +11,11 @@ def init_db():
             content TEXT, 
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 
         );"""
-    create_schema(create_table)
+    try:
+        execute(create_table)
+    except sqlite3.OperationalError as e:
+        print(e)
+
 
 
 def save_message(conversation_id, title, role, content, timestamp):
@@ -19,7 +24,7 @@ def save_message(conversation_id, title, role, content, timestamp):
                     """
     params = (conversation_id,
               title, role, content, timestamp)
-    execute_write(query, params)
+    execute(query, params)
 
 
 def list_conversations():
@@ -38,9 +43,9 @@ def get_messages(conversation_id):
             ORDER BY timestamp ASC
             """
     params = conversation_id
-    return fetch_all_with_param(query, params)
+    return fetch_all(query, (conversation_id,))
 
 
 def delete_all_conversations():
-    query = """ DELETE FROM conversations """
-    delete_and_vacuum(query)
+    execute(""" DELETE FROM conversations """)
+    vacuum()
