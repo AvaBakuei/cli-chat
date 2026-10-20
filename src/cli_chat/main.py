@@ -1,21 +1,27 @@
 import typer
 from openai import OpenAI
-from rich.console import Console
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.formatted_text import HTML
-from cli_chat.config import get_settings
-from cli_chat.ui.theme import rich_theme, prompt_style
-from cli_chat.storage.conversation_repository import init_db
-from cli_chat.commands.handlers import handle_new_command, handle_resume_command, handle_delete_command, handle_exit_command
-from cli_chat.ui.panels import build_message_panel
-from cli_chat.services.chat_service import send_message
+from rich.console import Console
 
+from cli_chat.commands.chat import handle_chat_message
+from cli_chat.commands.handlers import (
+    handle_delete_command,
+    handle_exit_command,
+    handle_new_command,
+    handle_resume_command,
+)
+from cli_chat.config import get_settings
+from cli_chat.services.chat_service import ChatService
+from cli_chat.storage.conversation_repository import init_db
+from cli_chat.ui.panels import build_message_panel
+from cli_chat.ui.theme import prompt_style, rich_theme
 
 app = typer.Typer()
 client = OpenAI(api_key=get_settings().openai_api_key)
+chat_service = ChatService(client, model=get_settings().model)
 conversation = client.conversations.create()
-
 
 console = Console(theme=rich_theme)
 
@@ -64,8 +70,4 @@ def main():
         user_panel = build_message_panel(user_input)
         console.print(user_panel)
 
-        send_message(user_input, conversation, console)
-
-
-if __name__ == "__main__":
-    app()
+        handle_chat_message(user_input, conversation, chat_service, console)
