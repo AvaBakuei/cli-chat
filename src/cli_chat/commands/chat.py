@@ -10,7 +10,8 @@ THINKING_STATUS = "[loading]Thinking...[/loading]     \n\n[dim]💡 Press [bold]
 CANCELLED_TEXT = "[red]❌ Process canceled by user.[/red]"
 
 
-def handle_chat_message(user_input, conversation, chat_service: ChatService, console: Console) -> None:
+def handle_chat_message(user_input, conversation, chat_service: ChatService, console: Console):
+    """Send one message and return the (possibly updated) conversation."""
     def cancel() -> None:
         chat_service.cancel()
         console.print(CANCELLED_TEXT)
@@ -20,8 +21,8 @@ def handle_chat_message(user_input, conversation, chat_service: ChatService, con
 
     try:
         with console.status(THINKING_STATUS):
-            is_first_turn = "title" not in conversation.metadata
-            if is_first_turn:
+            title = conversation.metadata.get("title")
+            if title is None:
                 title = chat_service.generate_title(user_input)
                 conversation = chat_service.update_title(
                     conversation.id, title)
@@ -32,6 +33,7 @@ def handle_chat_message(user_input, conversation, chat_service: ChatService, con
             save_message(conversation.id, title, "assistant",
                          answer_text, conversation.created_at)
     except RequestCancelled:
-        return
+        return conversation
 
     console.print(build_message_panel(answer_text, is_user=False))
+    return conversation

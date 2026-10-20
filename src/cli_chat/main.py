@@ -65,7 +65,8 @@ def main():
             continue
 
         console.print(build_message_panel(user_input))
-        handle_chat_message(user_input, conversation, chat_service, console)
+        conversation = handle_chat_message(
+            user_input, conversation, chat_service, console)
 
 
 if __name__ == "__main__":
