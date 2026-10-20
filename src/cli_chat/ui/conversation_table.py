@@ -9,8 +9,9 @@ def build_conversation_table(selected_index, data, has_back=False, has_more=Fals
         "[column]ID[/column]", justify="left")
     table.add_column(
         "[column]Title[/column]", justify="left")
-    table.add_column(
-        "[column]Created at[/column]", justify="left")
+
+    table.add_column("[column]Last activity[/column]",
+                 justify="left")
 
     for index in range(len(data) + 2):
         style = "bold slate_blue1 on dark_olive_green1" if index == selected_index else "row"

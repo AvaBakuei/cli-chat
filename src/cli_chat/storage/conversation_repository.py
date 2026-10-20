@@ -1,4 +1,5 @@
 import sqlite3
+import time
 from cli_chat.storage.database import execute, fetch_all, vacuum
 from cli_chat.models import ConversationSummary, Message
 
@@ -18,19 +19,18 @@ def init_db():
         print(e)
 
 
-
-def save_message(conversation_id, title, role, content, timestamp):
-    query = """ INSERT INTO conversations(conversation_id, title, role, content, timestamp)
-                    VALUES(?, ?, ?, ?, ?) 
-                    """
-    params = (conversation_id,
-              title, role, content, timestamp)
+def save_message(conversation_id: str, title: str, role: str, content: str) -> None:
+    query = """
+        INSERT INTO conversations (conversation_id, title, role, content, timestamp)
+        VALUES (?, ?, ?, ?, ?)
+    """
+    params = (conversation_id, title, role, content, int(time.time()))
     execute(query, params)
 
 
 def list_conversations() -> list[ConversationSummary]:
     rows = fetch_all(
-       """
+        """
         SELECT conversation_id, title, MAX(timestamp) AS last_activity
         FROM conversations
         GROUP BY conversation_id
@@ -53,9 +53,9 @@ def get_messages(conversation_id: str) -> list[Message]:
         SELECT conversation_id, role, content, timestamp
         FROM conversations
         WHERE conversation_id = ?
-        ORDER BY timestamp ASC
+        ORDER BY timestamp ASC, id ASC
         """,
-        (conversation_id,)
+        (conversation_id,),
     )
     return [
         Message(

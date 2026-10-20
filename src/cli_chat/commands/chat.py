@@ -28,10 +28,10 @@ def handle_chat_message(user_input, conversation, chat_service: ChatService, con
                     conversation.id, title)
 
             save_message(conversation.id, title, "user",
-                         user_input, conversation.created_at)
+                         user_input)
             answer_text = chat_service.ask(user_input, conversation.id)
             save_message(conversation.id, title, "assistant",
-                         answer_text, conversation.created_at)
+                         answer_text)
     except RequestCancelled:
         return conversation
 
