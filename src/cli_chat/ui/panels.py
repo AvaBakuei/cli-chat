@@ -1,14 +1,8 @@
 from rich.panel import Panel
+from rich.text import Text
 
 
-def build_message_panel(text, is_user=True):
+def build_message_panel(text: str, is_user: bool = True) -> Panel:
     if is_user:
-        combined_input_text = f"[input]{text}[/input]"
-        panel = Panel(combined_input_text, title="[input]User[/input]",
-                      border_style="input")
-    else:
-        combined_output_text = f"[output]{text}[/output]"
-        panel = Panel(combined_output_text,
-                      title="[output]ChatGPT[/output]", border_style="output")
-
-    return panel
+        return Panel(Text(text, style="input"), title="[input]User[/input]", border_style="input")
+    return Panel(Text(text, style="output"), title="[output]ChatGPT[/output]", border_style="output")
