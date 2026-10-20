@@ -19,55 +19,54 @@ from cli_chat.ui.panels import build_message_panel
 from cli_chat.ui.theme import prompt_style, rich_theme
 
 app = typer.Typer()
-client = OpenAI(api_key=get_settings().openai_api_key)
-chat_service = ChatService(client, model=get_settings().model)
-conversation = client.conversations.create()
-
-console = Console(theme=rich_theme)
 
 
 @app.command()
 def main():
+    settings = get_settings()
+    console = Console(theme=rich_theme)
+    chat_service = ChatService(
+        OpenAI(api_key=settings.openai_api_key), model=settings.model)
+
     init_db()
-    global conversation
-    items_per_page = get_settings().items_per_page
+    conversation = chat_service.start_conversation()
+
     current_page = 0
     current_selection = 1
     all_chats = []
     result_data = {}
-
     slash_completer = WordCompleter(
         ["/new", "/resume", "/delete", "/exit"], WORD=True)
+
     while True:
         user_input = prompt(
-            HTML('<user-prompt>You ❯ </user-prompt>'),
+            HTML("<user-prompt>You ❯ </user-prompt>"),
             completer=slash_completer,
             complete_while_typing=True,
-            style=prompt_style
+            style=prompt_style,
         )
 
         if not user_input.strip():
             continue
 
-        # ---- Exit form chat
         if handle_exit_command(user_input, console):
             break
 
-        # ---- Create new chat
         if handle_new_command(user_input, console):
-            conversation = client.conversations.create()
+            conversation = chat_service.start_conversation()
             continue
 
-        # ---- Show a list of conversations:
-        if handle_resume_command(user_input, console, items_per_page, current_page, current_selection, all_chats, result_data):
+        if handle_resume_command(user_input, console, settings.items_per_page,
+                                 current_page, current_selection, all_chats, result_data):
             conversation.id = result_data.get("selected_chat")
             continue
 
-        # ---- Delete all of conversations:
         if handle_delete_command(user_input, console):
             continue
 
-        user_panel = build_message_panel(user_input)
-        console.print(user_panel)
-
+        console.print(build_message_panel(user_input))
         handle_chat_message(user_input, conversation, chat_service, console)
+
+
+if __name__ == "__main__":
+    app()
