@@ -50,7 +50,7 @@ def handle_resume_command(user_input, console, items_per_page, current_page, cur
             elif pressed == key.ENTER:
                 if current_selection == 0 and has_back:
                     current_page -= 1
-                    current_selection = start_index
+                    current_selection = items_per_page
                 elif current_selection == len(page_data) + 1 and has_more:
                     current_page += 1
                     current_selection = 1
