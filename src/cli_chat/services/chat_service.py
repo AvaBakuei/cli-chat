@@ -27,6 +27,9 @@ class ChatService:
     def start_conversation(self):
         return self._client.conversations.create()
 
+    def get_conversation(self, conversation_id: str):
+        return self._client.conversations.retrieve(conversation_id)
+
     def generate_title(self, user_input: str) -> str:
         response = self._run_in_background(
             instructions=TITLE_INSTRUCTIONS,

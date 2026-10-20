@@ -58,7 +58,8 @@ def main():
 
         if handle_resume_command(user_input, console, settings.items_per_page,
                                  current_page, current_selection, all_chats, result_data):
-            conversation.id = result_data.get("selected_chat")
+            conversation = chat_service.get_conversation(
+                result_data["selected_chat"])
             continue
 
         if handle_delete_command(user_input, console):
