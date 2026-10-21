@@ -1,13 +1,17 @@
 import sys
+
+from readchar import key, readkey
 from rich.live import Live
-from readchar import readkey, key
-from cli_chat.ui.conversation_table import build_conversation_table
-from cli_chat.ui.history import build_history_view
+
+from cli_chat.commands.resume_picker import ConversationPicker
+from cli_chat.models import ConversationSummary
 from cli_chat.storage.conversation_repository import (
     delete_all_conversations,
     get_messages,
     list_conversations,
 )
+from cli_chat.ui.conversation_table import build_conversation_table
+from cli_chat.ui.history import build_history_view
 
 
 def handle_new_command(user_input, console):
@@ -19,53 +23,22 @@ def handle_new_command(user_input, console):
     return True
 
 
-def handle_resume_command(user_input, console, items_per_page, current_page, current_selection, all_chats, result_data):
+def handle_resume_command(user_input, console, items_per_page, result_data):
     if user_input.strip().lower() != "/resume":
         return False
-    all_chats = list_conversations()
-    if not all_chats:
+    conversations = list_conversations()
+    if not conversations:
         console.print(
             "💬 This conversation is empty. Type a message to get started!", style="info")
         return True
 
-    with Live(build_conversation_table([], []), console=console, auto_refresh=False, transient=True) as live:
-        while True:
-            start_index = current_page * items_per_page
-            end_index = start_index + items_per_page
+    picker = ConversationPicker(conversations, items_per_page)
+    selected = _choose_conversation(picker, console)
 
-            page_data = all_chats[start_index:end_index]
-
-            has_back = current_page > 0
-            has_more = end_index < len(all_chats)
-
-            live.update(build_conversation_table(current_selection,
-                                   page_data, has_back, has_more, page=current_page, items_per_page=items_per_page), refresh=True)
-
-            pressed = readkey()
-            if pressed == key.UP:
-                current_selection = max(0, current_selection - 1)
-            elif pressed == key.DOWN:
-                current_selection = min(
-                    len(page_data) + 1, current_selection + 1)
-            elif pressed == key.ENTER:
-                if current_selection == 0 and has_back:
-                    current_page -= 1
-                    current_selection = items_per_page
-                elif current_selection == len(page_data) + 1 and has_more:
-                    current_page += 1
-                    current_selection = 1
-                elif 1 <= current_selection <= len(page_data):
-                    selected = all_chats[start_index + current_selection - 1]
-                    break
-            
-
-            elif pressed == key.CTRL_C:
-                sys.exit(0)
     messages = get_messages(selected.conversation_id)
     console.print(build_history_view(messages))
     result_data["selected_chat"] = selected.conversation_id
     return True
-    
 
 
 def handle_delete_command(user_input, console):
@@ -82,3 +55,31 @@ def handle_exit_command(user_input, console):
         return False
     console.print("Goodbye!", style="info")
     return True
+
+
+def _choose_conversation(picker: ConversationPicker, console) -> ConversationSummary:
+    with Live(_render(picker), console=console, auto_refresh=False, transient=True) as live:
+        while True:
+            pressed = readkey()
+            if pressed == key.UP:
+                picker.move_up()
+            elif pressed == key.DOWN:
+                picker.move_down()
+            elif pressed == key.ENTER:
+                selected = picker.press_enter()
+                if selected is not None:
+                    return selected
+            elif pressed == key.CTRL_C:
+                sys.exit(0)
+            live.update(_render(picker), refresh=True)
+
+
+def _render(picker: ConversationPicker):
+    return build_conversation_table(
+        picker.selected_row,
+        picker.page_items,
+        picker.has_back,
+        picker.has_more,
+        page=picker.page,
+        items_per_page=picker.items_per_page,
+    )

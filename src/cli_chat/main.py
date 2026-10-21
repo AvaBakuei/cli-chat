@@ -31,9 +31,6 @@ def main():
     init_db()
     conversation = chat_service.start_conversation()
 
-    current_page = 0
-    current_selection = 1
-    all_chats = []
     result_data = {}
     slash_completer = WordCompleter(
         ["/new", "/resume", "/delete", "/exit"], WORD=True)
@@ -56,8 +53,7 @@ def main():
             conversation = chat_service.start_conversation()
             continue
 
-        if handle_resume_command(user_input, console, settings.items_per_page,
-                                 current_page, current_selection, all_chats, result_data):
+        if handle_resume_command(user_input, console, settings.items_per_page, result_data):
             conversation = chat_service.get_conversation(
                 result_data["selected_chat"])
             continue
