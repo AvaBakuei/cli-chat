@@ -1,7 +1,8 @@
 import sqlite3
 import time
-from cli_chat.storage.database import execute, fetch_all, vacuum
+
 from cli_chat.models import ConversationSummary, Message
+from cli_chat.storage.database import execute, fetch_all, vacuum
 
 
 def init_db():

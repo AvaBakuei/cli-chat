@@ -4,8 +4,8 @@ import os
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = "gpt-6-astra"

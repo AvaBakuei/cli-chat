@@ -1,4 +1,5 @@
 from rich.console import Group
+
 from cli_chat.models import Message
 from cli_chat.ui.panels import build_message_panel
 
