@@ -54,7 +54,8 @@ class ChatService:
         if self._active_response_id is None:
             return
         try:
-            self._client.responses.cancel(self._active_response_id, max_retries=0)
+            self._client.with_options(max_retries=0).responses.cancel(
+                self._active_response_id)
         except Exception:
             pass  # unchanged behaviour – error handling is step 11
         finally:
