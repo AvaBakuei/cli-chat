@@ -1,40 +1,48 @@
-from rich.table import Table
 from datetime import datetime
+
 from rich.console import Group
+from rich.table import Table
+
+COLUMNS = ("ID", "Title", "Last activity")
+DATE_FORMAT = "%Y-%m-%d %H:%M"
+HINT_TEXT = (
+    "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • "
+    "Press [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
+)
+
 
 def build_conversation_table(selected_index, data, has_back=False, has_more=False, page=0, items_per_page=10):
     table = Table(
         title="[title]List of Conversations[/title]", title_justify="left")
-    table.add_column(
-        "[column]ID[/column]", justify="left")
-    table.add_column(
-        "[column]Title[/column]", justify="left")
+    for name in COLUMNS:
+        table.add_column(f"[column]{name}[/column]")
 
-    table.add_column("[column]Last activity[/column]",
-                 justify="left")
+    _add_navigation_row(table, "back", has_back,
+                        is_selected=selected_index == 0)
 
-    for index in range(len(data) + 2):
-        style = "selected_row" if index == selected_index else "row"
+    for position, conversation in enumerate(data, start=1):
+        last_activity = datetime.fromtimestamp(
+            conversation.last_activity).strftime(DATE_FORMAT)
+        display_index = page * items_per_page + position
+        table.add_row(
+            str(display_index),
+            conversation.title,
+            last_activity,
+            style=_row_style(selected_index == position),
+        )
 
-        if index == 0:
-            if has_back:
-                table.add_row("back", "", "", style=style)
-            else:
-                table.add_row("", "", "", style="row")
-            continue
+    _add_navigation_row(table, "more", has_more,
+                        is_selected=selected_index == len(data) + 1)
 
-        if index == len(data) + 1:
-            if has_more:
-                table.add_row("more", "", "", style=style)
-            else:
-                table.add_row("", "", "", style="row")
-            continue
-        conversation = data[index - 1]
-        readable_date = datetime.fromtimestamp(
-            conversation.last_activity).strftime("%Y-%m-%d %H:%M")
-        display_index = (page * items_per_page) + index
-        table.add_row(str(display_index), conversation.title,
-                      readable_date, style=style)
+    return Group(table, HINT_TEXT)
 
-    hint_text = "\n[dim]💡 Use [bold]↑/↓ Arrows[/bold] to navigate • Press [bold][Enter][/bold] to select • [bold]Ctrl+C[/bold] to exit[/dim]"
-    return Group(table, hint_text)
+
+def _row_style(is_selected: bool) -> str:
+    return "selected_row" if is_selected else "row"
+
+
+def _add_navigation_row(table: Table, label: str, is_visible: bool, is_selected: bool) -> None:
+    if is_visible:
+        table.add_row(label, "", "", style=_row_style(is_selected))
+    else:
+        table.add_row("", "", "", style="row")
