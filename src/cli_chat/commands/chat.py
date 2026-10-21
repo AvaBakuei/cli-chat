@@ -6,7 +6,7 @@ from cli_chat.storage.conversation_repository import save_message
 from cli_chat.ui.panels import build_message_panel
 
 THINKING_STATUS = "[loading]Thinking...[/loading]     \n\n[dim]💡 Press [bold]Ctrl+C[/bold] to cancel[/dim]"
-CANCELLED_TEXT = "[red]❌ Process canceled by user.[/red]"
+CANCELLED_TEXT = "❌ Process canceled by user."
 
 
 def handle_chat_message(user_input, conversation, chat_service: ChatService, console: Console):
