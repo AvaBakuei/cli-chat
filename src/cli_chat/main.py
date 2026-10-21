@@ -6,12 +6,8 @@ from prompt_toolkit.formatted_text import HTML
 from rich.console import Console
 
 from cli_chat.commands.chat import handle_chat_message
-from cli_chat.commands.handlers import (
-    handle_delete_command,
-    handle_exit_command,
-    handle_new_command,
-    handle_resume_command,
-)
+from cli_chat.commands.handlers import COMMANDS
+from cli_chat.commands.session import Session
 from cli_chat.config import get_settings
 from cli_chat.services.chat_service import ChatService
 from cli_chat.storage.conversation_repository import init_db
@@ -29,13 +25,15 @@ def main():
         OpenAI(api_key=settings.openai_api_key), model=settings.model)
 
     init_db()
-    conversation = chat_service.start_conversation()
+    session = Session(
+        console=console,
+        chat_service=chat_service,
+        settings=settings,
+        conversation=chat_service.start_conversation(),
+    )
+    slash_completer = WordCompleter(list(COMMANDS), WORD=True)
 
-    result_data = {}
-    slash_completer = WordCompleter(
-        ["/new", "/resume", "/delete", "/exit"], WORD=True)
-
-    while True:
+    while session.is_running:
         user_input = prompt(
             HTML("<user-prompt>You ❯ </user-prompt>"),
             completer=slash_completer,
@@ -43,27 +41,18 @@ def main():
             style=prompt_style,
         )
 
-        if not user_input.strip():
+        command_name = user_input.strip().lower()
+        if not command_name:
             continue
 
-        if handle_exit_command(user_input, console):
-            break
-
-        if handle_new_command(user_input, console):
-            conversation = chat_service.start_conversation()
-            continue
-
-        if handle_resume_command(user_input, console, settings.items_per_page, result_data):
-            conversation = chat_service.get_conversation(
-                result_data["selected_chat"])
-            continue
-
-        if handle_delete_command(user_input, console):
+        command = COMMANDS.get(command_name)
+        if command is not None:
+            command(session)
             continue
 
         console.print(build_message_panel(user_input))
-        conversation = handle_chat_message(
-            user_input, conversation, chat_service, console)
+        session.conversation = handle_chat_message(
+            user_input, session.conversation, chat_service, console)
 
 
 if __name__ == "__main__":

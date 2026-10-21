@@ -1,9 +1,12 @@
+"""Slash commands. Every command receives the session and may change it."""
 import sys
+from collections.abc import Callable
 
 from readchar import key, readkey
 from rich.live import Live
 
 from cli_chat.commands.resume_picker import ConversationPicker
+from cli_chat.commands.session import Session
 from cli_chat.models import ConversationSummary
 from cli_chat.storage.conversation_repository import (
     delete_all_conversations,
@@ -14,47 +17,48 @@ from cli_chat.ui.conversation_table import build_conversation_table
 from cli_chat.ui.history import build_history_view
 
 
-def handle_new_command(user_input, console):
-    if user_input.strip().lower() != "/new":
-        return False
-    console.clear()
-    console.print(
-        "\nSystem Chat history cleared. Starting a fresh conversation!", style="info")
-    return True
+def new_command(session: Session) -> None:
+    session.console.clear()
+    session.console.print(
+        "\nStarted a new conversation. Previous chats are available with /resume.",
+        style="info",
+    )
+    session.conversation = session.chat_service.start_conversation()
 
 
-def handle_resume_command(user_input, console, items_per_page, result_data):
-    if user_input.strip().lower() != "/resume":
-        return False
+def resume_command(session: Session) -> None:
     conversations = list_conversations()
     if not conversations:
-        console.print(
+        session.console.print(
             "💬 This conversation is empty. Type a message to get started!", style="info")
-        return True
+        return
 
-    picker = ConversationPicker(conversations, items_per_page)
-    selected = _choose_conversation(picker, console)
+    picker = ConversationPicker(conversations, session.settings.items_per_page)
+    selected = _choose_conversation(picker, session.console)
 
-    messages = get_messages(selected.conversation_id)
-    console.print(build_history_view(messages))
-    result_data["selected_chat"] = selected.conversation_id
-    return True
+    session.console.print(build_history_view(
+        get_messages(selected.conversation_id)))
+    session.conversation = session.chat_service.get_conversation(
+        selected.conversation_id)
 
 
-def handle_delete_command(user_input, console):
-    if user_input.strip().lower() != "/delete":
-        return False
+def delete_command(session: Session) -> None:
     delete_all_conversations()
-    console.print(
+    session.console.print(
         "💥 All conversations have been permanently deleted!", style="info")
-    return True
 
 
-def handle_exit_command(user_input, console):
-    if user_input.strip().lower() != "/exit":
-        return False
-    console.print("Goodbye!", style="info")
-    return True
+def exit_command(session: Session) -> None:
+    session.console.print("Goodbye!", style="info")
+    session.is_running = False
+
+
+COMMANDS: dict[str, Callable[[Session], None]] = {
+    "/new": new_command,
+    "/resume": resume_command,
+    "/delete": delete_command,
+    "/exit": exit_command,
+}
 
 
 def _choose_conversation(picker: ConversationPicker, console) -> ConversationSummary:
