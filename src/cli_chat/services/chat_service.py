@@ -1,5 +1,4 @@
 """Talks to the OpenAI API. Knows nothing about the terminal or the database."""
-import threading
 import time
 
 from openai import OpenAI
@@ -13,16 +12,11 @@ PENDING_STATUSES = {"queued", "in_progress"}
 POLL_INTERVAL_SECONDS = 0.2
 
 
-class RequestCancelled(Exception):
-    """Raised when the user cancels a running request."""
-
-
 class ChatService:
     def __init__(self, client: OpenAI, model: str) -> None:
         self._client = client
         self._model = model
-        self._active_response_ids: set[str] = set()
-        self._cancel_event = threading.Event()
+        self._active_response_id: str | None = None
 
     def start_conversation(self):
         return self._client.conversations.create()
@@ -50,31 +44,24 @@ class ChatService:
         )
         return response.output_text
 
-    def reset_cancellation(self) -> None:
-        self._cancel_event.clear()
-
-    def cancel(self) -> None:
-        self._cancel_event.set()
-        for response_id in list(self._active_response_ids):
-            try:
-                self._client.responses.cancel(response_id, max_retries=0)
-            except Exception:
-                pass  # unchanged behaviour – error handling is step 11
+    def cancel_active_request(self) -> None:
+        if self._active_response_id is None:
+            return
+        try:
+            self._client.responses.cancel(
+                self._active_response_id, max_retries=0)
+        except Exception:
+            pass  # unchanged behaviour – error handling is step 11
+        finally:
+            self._active_response_id = None
 
     def _run_in_background(self, **request):
         response = self._client.responses.create(
             model=self._model, background=True, **request
         )
-        self._active_response_ids.add(response.id)
-        try:
-            while response.status in PENDING_STATUSES:
-                if self._cancel_event.is_set():
-                    raise RequestCancelled
-                time.sleep(POLL_INTERVAL_SECONDS)
-                response = self._client.responses.retrieve(response.id)
-        finally:
-            self._active_response_ids.discard(response.id)
-
-        if self._cancel_event.is_set():
-            raise RequestCancelled
+        self._active_response_id = response.id
+        while response.status in PENDING_STATUSES:
+            time.sleep(POLL_INTERVAL_SECONDS)
+            response = self._client.responses.retrieve(response.id)
+        self._active_response_id = None
         return response

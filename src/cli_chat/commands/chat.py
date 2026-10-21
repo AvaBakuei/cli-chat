@@ -1,24 +1,16 @@
 """Handles a normal chat message: ask the model, store both sides, show the answer."""
 from rich.console import Console
 
-from cli_chat.services.chat_service import ChatService, RequestCancelled
+from cli_chat.services.chat_service import ChatService
 from cli_chat.storage.conversation_repository import save_message
-from cli_chat.ui.cancel_listener import start_cancel_listener
 from cli_chat.ui.panels import build_message_panel
 
-THINKING_STATUS = "[loading]Thinking...[/loading]     \n\n[dim]💡 Press [bold][C][/bold] to cancel[/dim]"
+THINKING_STATUS = "[loading]Thinking...[/loading]     \n\n[dim]💡 Press [bold]Ctrl+C[/bold] to cancel[/dim]"
 CANCELLED_TEXT = "[red]❌ Process canceled by user.[/red]"
 
 
 def handle_chat_message(user_input, conversation, chat_service: ChatService, console: Console):
     """Send one message and return the (possibly updated) conversation."""
-    def cancel() -> None:
-        chat_service.cancel()
-        console.print(CANCELLED_TEXT)
-
-    chat_service.reset_cancellation()
-    start_cancel_listener(on_cancel=cancel)
-
     try:
         with console.status(THINKING_STATUS):
             title = conversation.metadata.get("title")
@@ -27,12 +19,12 @@ def handle_chat_message(user_input, conversation, chat_service: ChatService, con
                 conversation = chat_service.update_title(
                     conversation.id, title)
 
-            save_message(conversation.id, title, "user",
-                         user_input)
+            save_message(conversation.id, title, "user", user_input)
             answer_text = chat_service.ask(user_input, conversation.id)
-            save_message(conversation.id, title, "assistant",
-                         answer_text)
-    except RequestCancelled:
+            save_message(conversation.id, title, "assistant", answer_text)
+    except KeyboardInterrupt:
+        chat_service.cancel_active_request()
+        console.print(CANCELLED_TEXT)
         return conversation
 
     console.print(build_message_panel(answer_text, is_user=False))

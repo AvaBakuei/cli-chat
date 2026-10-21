@@ -6,3 +6,4 @@
 [ ] /resume -> table, arrows, next page, back, Enter shows history
 [ ] /delete -> all conversations removed
 [ ] /exit -> Goodbye
+[ ] Press Ctrl+C during "Thinking..." -> cancel message appears
