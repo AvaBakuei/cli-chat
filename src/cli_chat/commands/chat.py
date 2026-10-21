@@ -24,7 +24,7 @@ def handle_chat_message(user_input, conversation, chat_service: ChatService, con
             save_message(conversation.id, title, "assistant", answer_text)
     except KeyboardInterrupt:
         chat_service.cancel_active_request()
-        console.print(CANCELLED_TEXT)
+        console.print(CANCELLED_TEXT, style="error")
         return conversation
 
     console.print(build_message_panel(answer_text, is_user=False))

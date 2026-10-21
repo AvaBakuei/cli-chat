@@ -15,7 +15,7 @@ def handle_new_command(user_input, console):
         return False
     console.clear()
     console.print(
-        "\n[info]System Chat history cleared. Starting a fresh conversation![/info]")
+        "\nSystem Chat history cleared. Starting a fresh conversation!", style="info")
     return True
 
 
@@ -25,7 +25,7 @@ def handle_resume_command(user_input, console, items_per_page, current_page, cur
     all_chats = list_conversations()
     if not all_chats:
         console.print(
-            "[info]💬 This conversation is empty. Type a message to get started![/info]")
+            "💬 This conversation is empty. Type a message to get started!", style="info")
         return True
 
     with Live(build_conversation_table([], []), console=console, auto_refresh=False, transient=True) as live:
@@ -73,12 +73,12 @@ def handle_delete_command(user_input, console):
         return False
     delete_all_conversations()
     console.print(
-        "[info]💥 All conversations have been permanently deleted![/info]")
+        "💥 All conversations have been permanently deleted!", style="info")
     return True
 
 
 def handle_exit_command(user_input, console):
     if user_input.strip().lower() != "/exit":
         return False
-    console.print("[info]Goodbye![/info]")
+    console.print("Goodbye!", style="info")
     return True

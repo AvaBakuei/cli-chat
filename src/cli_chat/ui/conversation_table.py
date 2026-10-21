@@ -14,7 +14,7 @@ def build_conversation_table(selected_index, data, has_back=False, has_more=Fals
                  justify="left")
 
     for index in range(len(data) + 2):
-        style = "bold slate_blue1 on dark_olive_green1" if index == selected_index else "row"
+        style = "selected_row" if index == selected_index else "row"
 
         if index == 0:
             if has_back:
