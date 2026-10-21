@@ -7,12 +7,12 @@ from cli_chat.storage.database import execute, fetch_all, vacuum
 
 def init_db() -> None:
     create_table = """CREATE TABLE IF NOT EXISTS conversations(
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             conversation_id TEXT,
             title TEXT,
-            role TEXT, 
-            content TEXT, 
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 
+            role TEXT,
+            content TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         );"""
     try:
         execute(create_table)

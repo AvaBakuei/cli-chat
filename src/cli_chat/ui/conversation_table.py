@@ -2,6 +2,7 @@ from datetime import datetime
 
 from rich.console import Group
 from rich.table import Table
+
 from cli_chat.models import ConversationSummary
 
 COLUMNS = ("ID", "Title", "Last activity")
@@ -13,7 +14,12 @@ HINT_TEXT = (
 
 
 def build_conversation_table(
-    selected_index, data: list[ConversationSummary], has_back=False, has_more=False, page=0, items_per_page=10,
+    selected_index: int,
+    data: list[ConversationSummary],
+    has_back: bool = False,
+    has_more: bool = False,
+    page: int = 0,
+    items_per_page: int = 10,
 ) -> Group:
     table = Table(title="[title]List of Conversations[/title]", title_justify="left")
     for name in COLUMNS:

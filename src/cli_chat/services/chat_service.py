@@ -1,8 +1,6 @@
 """Talks to the OpenAI API. Knows nothing about the terminal or the database."""
 
 import time
-
-from openai import OpenAI
 from typing import Any
 
 from openai import OpenAI
@@ -54,14 +52,13 @@ class ChatService:
         if self._active_response_id is None:
             return
         try:
-            self._client.with_options(max_retries=0).responses.cancel(
-                self._active_response_id)
+            self._client.with_options(max_retries=0).responses.cancel(self._active_response_id)
         except Exception:
             pass  # unchanged behaviour – error handling is step 11
         finally:
             self._active_response_id = None
 
-    def _run_in_background(self, **request) -> Response:
+    def _run_in_background(self, **request: Any) -> Response:
         response = self._client.responses.create(model=self._model, background=True, **request)
         self._active_response_id = response.id
         while response.status in PENDING_STATUSES:

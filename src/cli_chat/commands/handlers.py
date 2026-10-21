@@ -4,6 +4,7 @@ import sys
 from collections.abc import Callable
 
 from readchar import key, readkey
+from rich.console import Console, Group
 from rich.live import Live
 
 from cli_chat.commands.resume_picker import ConversationPicker
@@ -16,7 +17,6 @@ from cli_chat.storage.conversation_repository import (
 )
 from cli_chat.ui.conversation_table import build_conversation_table
 from cli_chat.ui.history import build_history_view
-from rich.console import Console, Group
 
 
 def new_command(session: Session) -> None:

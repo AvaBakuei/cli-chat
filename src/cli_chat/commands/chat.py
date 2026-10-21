@@ -1,12 +1,11 @@
 """Handles a normal chat message: ask the model, store both sides, show the answer."""
 
+from openai.types.conversations import Conversation
 from rich.console import Console
 
 from cli_chat.services.chat_service import ChatService
 from cli_chat.storage.conversation_repository import save_message
 from cli_chat.ui.panels import build_message_panel
-from openai.types.conversations import Conversation
-
 
 THINKING_STATUS = (
     "[loading]Thinking...[/loading]     \n\n[dim]💡 Press [bold]Ctrl+C[/bold] to cancel[/dim]"
@@ -23,7 +22,7 @@ def handle_chat_message(
     """Send one message and return the (possibly updated) conversation."""
     try:
         with console.status(THINKING_STATUS):
-            title = conversation.metadata.get("title")
+            title = _title_of(conversation)
             if title is None:
                 title = chat_service.generate_title(user_input)
                 conversation = chat_service.update_title(conversation.id, title)
@@ -38,3 +37,10 @@ def handle_chat_message(
 
     console.print(build_message_panel(answer_text, is_user=False))
     return conversation
+
+
+def _title_of(conversation: Conversation) -> str | None:
+    metadata = conversation.metadata
+    if isinstance(metadata, dict):
+        return metadata.get("title")
+    return None
