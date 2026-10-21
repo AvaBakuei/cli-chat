@@ -16,6 +16,7 @@ from cli_chat.storage.conversation_repository import (
 )
 from cli_chat.ui.conversation_table import build_conversation_table
 from cli_chat.ui.history import build_history_view
+from rich.console import Console, Group
 
 
 def new_command(session: Session) -> None:
@@ -60,7 +61,7 @@ COMMANDS: dict[str, Callable[[Session], None]] = {
 }
 
 
-def _choose_conversation(picker: ConversationPicker, console) -> ConversationSummary:
+def _choose_conversation(picker: ConversationPicker, console: Console) -> ConversationSummary:
     with Live(_render(picker), console=console, auto_refresh=False, transient=True) as live:
         while True:
             pressed = readkey()
@@ -77,7 +78,7 @@ def _choose_conversation(picker: ConversationPicker, console) -> ConversationSum
             live.update(_render(picker), refresh=True)
 
 
-def _render(picker: ConversationPicker):
+def _render(picker: ConversationPicker) -> Group:
     return build_conversation_table(
         picker.selected_row,
         picker.page_items,

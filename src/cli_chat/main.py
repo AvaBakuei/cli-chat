@@ -18,7 +18,7 @@ app = typer.Typer()
 
 
 @app.command()
-def main():
+def main() -> None:
     settings = get_settings()
     console = Console(theme=rich_theme)
     chat_service = ChatService(OpenAI(api_key=settings.openai_api_key), model=settings.model)

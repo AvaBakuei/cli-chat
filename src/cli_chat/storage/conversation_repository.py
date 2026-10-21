@@ -5,7 +5,7 @@ from cli_chat.models import ConversationSummary, Message
 from cli_chat.storage.database import execute, fetch_all, vacuum
 
 
-def init_db():
+def init_db() -> None:
     create_table = """CREATE TABLE IF NOT EXISTS conversations(
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             conversation_id TEXT,
@@ -69,6 +69,6 @@ def get_messages(conversation_id: str) -> list[Message]:
     ]
 
 
-def delete_all_conversations():
+def delete_all_conversations() -> None:
     execute(""" DELETE FROM conversations """)
     vacuum()

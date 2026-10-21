@@ -5,6 +5,8 @@ from rich.console import Console
 from cli_chat.services.chat_service import ChatService
 from cli_chat.storage.conversation_repository import save_message
 from cli_chat.ui.panels import build_message_panel
+from openai.types.conversations import Conversation
+
 
 THINKING_STATUS = (
     "[loading]Thinking...[/loading]     \n\n[dim]💡 Press [bold]Ctrl+C[/bold] to cancel[/dim]"
@@ -12,7 +14,12 @@ THINKING_STATUS = (
 CANCELLED_TEXT = "❌ Process canceled by user."
 
 
-def handle_chat_message(user_input, conversation, chat_service: ChatService, console: Console):
+def handle_chat_message(
+    user_input: str,
+    conversation: Conversation,
+    chat_service: ChatService,
+    console: Console,
+) -> Conversation:
     """Send one message and return the (possibly updated) conversation."""
     try:
         with console.status(THINKING_STATUS):
