@@ -38,13 +38,13 @@ def list_conversations() -> list[ConversationSummary]:
         """
     )
     return [
-       ConversationSummary(
-           conversation_id=row["conversation_id"],
-           title=row["title"],
-           last_activity=row["last_activity"],
-       )
-       for row in rows
-   ]
+        ConversationSummary(
+            conversation_id=row["conversation_id"],
+            title=row["title"],
+            last_activity=row["last_activity"],
+        )
+        for row in rows
+    ]
 
 
 def get_messages(conversation_id: str) -> list[Message]:

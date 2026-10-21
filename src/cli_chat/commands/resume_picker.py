@@ -1,4 +1,5 @@
 """Pagination and selection state for the /resume list. Contains no terminal code."""
+
 from cli_chat.models import ConversationSummary
 
 BACK_ROW = 0
@@ -14,7 +15,7 @@ class ConversationPicker:
     @property
     def page_items(self) -> list[ConversationSummary]:
         start = self.page * self.items_per_page
-        return self._conversations[start:start + self.items_per_page]
+        return self._conversations[start : start + self.items_per_page]
 
     @property
     def has_back(self) -> bool:

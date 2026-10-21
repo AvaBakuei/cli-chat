@@ -21,8 +21,7 @@ app = typer.Typer()
 def main():
     settings = get_settings()
     console = Console(theme=rich_theme)
-    chat_service = ChatService(
-        OpenAI(api_key=settings.openai_api_key), model=settings.model)
+    chat_service = ChatService(OpenAI(api_key=settings.openai_api_key), model=settings.model)
 
     init_db()
     session = Session(
@@ -52,7 +51,8 @@ def main():
 
         console.print(build_message_panel(user_input))
         session.conversation = handle_chat_message(
-            user_input, session.conversation, chat_service, console)
+            user_input, session.conversation, chat_service, console
+        )
 
 
 if __name__ == "__main__":

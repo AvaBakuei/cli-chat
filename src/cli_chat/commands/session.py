@@ -1,4 +1,5 @@
 """Everything a command needs, bundled in one object."""
+
 from dataclasses import dataclass
 
 from openai.types.conversations import Conversation

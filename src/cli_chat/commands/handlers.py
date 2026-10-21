@@ -1,4 +1,5 @@
 """Slash commands. Every command receives the session and may change it."""
+
 import sys
 from collections.abc import Callable
 
@@ -30,22 +31,20 @@ def resume_command(session: Session) -> None:
     conversations = list_conversations()
     if not conversations:
         session.console.print(
-            "💬 This conversation is empty. Type a message to get started!", style="info")
+            "💬 This conversation is empty. Type a message to get started!", style="info"
+        )
         return
 
     picker = ConversationPicker(conversations, session.settings.items_per_page)
     selected = _choose_conversation(picker, session.console)
 
-    session.console.print(build_history_view(
-        get_messages(selected.conversation_id)))
-    session.conversation = session.chat_service.get_conversation(
-        selected.conversation_id)
+    session.console.print(build_history_view(get_messages(selected.conversation_id)))
+    session.conversation = session.chat_service.get_conversation(selected.conversation_id)
 
 
 def delete_command(session: Session) -> None:
     delete_all_conversations()
-    session.console.print(
-        "💥 All conversations have been permanently deleted!", style="info")
+    session.console.print("💥 All conversations have been permanently deleted!", style="info")
 
 
 def exit_command(session: Session) -> None:

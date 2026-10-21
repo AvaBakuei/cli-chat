@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class Message:
     conversation_id: str
@@ -13,9 +14,9 @@ class Message:
     def is_user(self) -> bool:
         return self.role.lower() == "user"
 
+
 @dataclass(frozen=True)
 class ConversationSummary:
     conversation_id: str
     title: str
     last_activity: int
-
