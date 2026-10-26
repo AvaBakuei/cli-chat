@@ -14,10 +14,7 @@ def init_db() -> None:
             content TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         );"""
-    try:
-        execute(create_table)
-    except sqlite3.OperationalError as e:
-        print(e)
+    execute(create_table)
 
 
 def save_message(conversation_id: str, title: str, role: str, content: str) -> None:
