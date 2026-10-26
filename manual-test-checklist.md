@@ -6,3 +6,6 @@
 [ ] /resume -> table, arrows, next page, back, Enter shows history
 [ ] /delete -> all conversations removed
 [ ] /exit -> Goodbye
+[ ] Wi-Fi off → send a message → clear error, app keeps running
+[ ] Ctrl+C on empty prompt → new line;  Ctrl+D → Goodbye
+[ ] Missing .env → clear message, no traceback
