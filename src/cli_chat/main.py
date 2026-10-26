@@ -1,4 +1,5 @@
 import typer
+import logging  # ← add at the top
 from openai import OpenAI
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
@@ -8,7 +9,7 @@ from rich.console import Console
 from cli_chat.commands.chat import handle_chat_message
 from cli_chat.commands.handlers import COMMANDS
 from cli_chat.commands.session import Session
-from cli_chat.config import get_settings
+from cli_chat.config import get_settings, LOG_PATH
 from cli_chat.services.chat_service import ChatService
 from cli_chat.storage.conversation_repository import init_db
 from cli_chat.ui.panels import build_message_panel
@@ -19,6 +20,7 @@ app = typer.Typer()
 
 @app.command()
 def main() -> None:
+    _configure_logging()
     settings = get_settings()
     console = Console(theme=rich_theme)
     chat_service = ChatService(OpenAI(api_key=settings.openai_api_key), model=settings.model)
@@ -53,6 +55,15 @@ def main() -> None:
         session.conversation = handle_chat_message(
             user_input, session.conversation, chat_service, console
         )
+
+
+def _configure_logging() -> None:  # ← new, above the last two lines of the file
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        filename=LOG_PATH,
+        level=logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
 
 
 if __name__ == "__main__":

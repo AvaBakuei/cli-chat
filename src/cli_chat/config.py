@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = "gpt-6-astra"
 DEFAULT_ITEMS_PER_PAGE = 10
-
+LOG_PATH = PROJECT_ROOT / "data" / "cli-chat.log"
 load_dotenv(PROJECT_ROOT / ".env")
 
 

@@ -1,6 +1,8 @@
 """Talks to the OpenAI API. Knows nothing about the terminal or the database."""
 
 import time
+import logging
+import openai
 from typing import Any
 
 from openai import OpenAI
@@ -14,6 +16,7 @@ TITLE_INSTRUCTIONS = (
 )
 PENDING_STATUSES = {"queued", "in_progress"}
 POLL_INTERVAL_SECONDS = 0.2
+logger = logging.getLogger(__name__)
 
 
 class ChatService:
@@ -53,8 +56,10 @@ class ChatService:
             return
         try:
             self._client.with_options(max_retries=0).responses.cancel(self._active_response_id)
-        except Exception:
-            pass  # unchanged behaviour – error handling is step 11
+        except openai.OpenAIError:  # ← only OpenAI errors
+            logger.warning(  # ← write it down
+                "Could not cancel response %s", self._active_response_id, exc_info=True
+            )
         finally:
             self._active_response_id = None
 
