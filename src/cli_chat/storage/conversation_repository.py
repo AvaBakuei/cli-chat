@@ -1,4 +1,3 @@
-import sqlite3
 import time
 
 from cli_chat.models import ConversationSummary, Message

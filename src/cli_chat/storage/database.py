@@ -11,7 +11,7 @@ from cli_chat.config import get_settings
 def connect() -> Generator[sqlite3.Connection, None, None]:
     db_path = get_settings().db_path
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(get_settings().db_path)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
         with conn:

@@ -1,10 +1,10 @@
 """Talks to the OpenAI API. Knows nothing about the terminal or the database."""
 
-import time
 import logging
-import openai
+import time
 from typing import Any
 
+import openai
 from openai import OpenAI
 from openai.types.conversations import Conversation
 from openai.types.responses import Response
@@ -60,10 +60,8 @@ class ChatService:
             return
         try:
             self._client.with_options(max_retries=0).responses.cancel(self._active_response_id)
-        except openai.OpenAIError:  # ← only OpenAI errors
-            logger.warning(  # ← write it down
-                "Could not cancel response %s", self._active_response_id, exc_info=True
-            )
+        except openai.OpenAIError:
+            logger.warning("Could not cancel response %s", self._active_response_id, exc_info=True)
         finally:
             self._active_response_id = None
 
