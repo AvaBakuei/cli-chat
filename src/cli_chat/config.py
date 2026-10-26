@@ -14,6 +14,10 @@ LOG_PATH = PROJECT_ROOT / "data" / "cli-chat.log"
 load_dotenv(PROJECT_ROOT / ".env")
 
 
+class ConfigError(Exception):
+    """The application is not configured correctly."""
+
+
 @dataclass(frozen=True)
 class Settings:
     openai_api_key: str
@@ -26,8 +30,7 @@ class Settings:
 def get_settings() -> Settings:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is missing. Copy .env.example to .env and set your key.")
-
+        raise ConfigError("OPENAI_API_KEY is missing. Copy .env.example to .env and set your key.")
     return Settings(
         openai_api_key=api_key,
         model=os.getenv("OPENAI_MODEL") or DEFAULT_MODEL,

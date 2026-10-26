@@ -19,6 +19,10 @@ POLL_INTERVAL_SECONDS = 0.2
 logger = logging.getLogger(__name__)
 
 
+class ChatServiceError(Exception):
+    """The API finished a request without a usable answer."""
+
+
 class ChatService:
     def __init__(self, client: OpenAI, model: str) -> None:
         self._client = client
@@ -70,4 +74,6 @@ class ChatService:
             time.sleep(POLL_INTERVAL_SECONDS)
             response = self._client.responses.retrieve(response.id)
         self._active_response_id = None
+        if response.status != "completed":
+            raise ChatServiceError(f"Response {response.id} ended with status {response.status!r}")
         return response
